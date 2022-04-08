@@ -32,7 +32,7 @@ def RCR_value(func):
         RCR_value_dict = {}
         nodes = graph.get_nodes()
         for node in nodes:
-            func(graph, node, RCR_value_dict)
+            func(graph, RCR_value_dict, node)
         return(RCR_value_dict)
     return(wrapper)
 

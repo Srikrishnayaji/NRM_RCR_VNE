@@ -47,7 +47,7 @@ class SubstrateWrapper(Substrate):
         nodes_between = self.shortest_path[u][v]
         cost = self.shortest_paths_costs[u][v]
         if cost == None:
-            print("No path possible")
+            return(False)
         else:
             if nodes_between == []:
                 self.edge[(u, v)]['capacity'] -= bandwidth
@@ -58,4 +58,5 @@ class SubstrateWrapper(Substrate):
                     self.edge[(node, u)]['capacity'] -= bandwidth
                 self.edge[(u, v)]['capacity'] -= bandwidth
                 self.edge[(v, u)]['capacity'] -= bandwidth
+            return(True)
         

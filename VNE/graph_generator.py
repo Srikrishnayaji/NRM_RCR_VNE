@@ -11,7 +11,8 @@ def generate_substrate_graph():
         memory_cost  = float(input("Enter the memory cost: "))
         substrate_graph.add_node(str(count), {"t1"}, capacity={"t1": cpu_capacity}, cost={"t1": memory_cost})
         count += 1
-    num_substrate_edges = int(input("Enter the number of virtual edges: "))
+    print("------------------------------------------------------------------")
+    num_substrate_edges = int(input("Enter the number of substrate edges: "))
     count = 0
     while(count < num_substrate_edges):
         u = input("Enter the first node: ")
@@ -32,6 +33,7 @@ def generate_virtual_graph():
         demand = requirement(cpu_capacity, memory_cost)
         virtual_graph.add_node(str(count), demand, "t1")
         count += 1
+    print("------------------------------------------------------------------")
     num_virtual_edges = int(input("Enter the number of virtual edges: "))
     count = 0
     while(count < num_virtual_edges):

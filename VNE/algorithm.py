@@ -19,13 +19,19 @@ def edge_mapping(substrate_graph, virtual_graph, mapping):
         u, v = bw_edge.edge
         sub_u = mapping.get_mapping_of_node(u)
         sub_v = mapping.get_mapping_of_node(v)
-        substrate_graph.update_bandwidth(sub_u, sub_v, bw_edge.bw)
-        substrate_path = []
-        nodes = substrate_graph.shortest_path[u][v] + [sub_v]
-        for node in nodes:
-            substrate_path.append((sub_u, node))
-            sub_u = node
-        mapping.map_edge(bw_edge.edge, substrate_path)
+        if sub_u == "NA" or sub_v == "NA":
+            mapping.map_edge(bw_edge.edge, "NA")
+        else:
+            path_possible = substrate_graph.update_bandwidth(sub_u, sub_v, bw_edge.bw)
+            if not path_possible:
+                mapping.map_edge(bw_edge.edge, "NA")
+            else:
+                substrate_path = []
+                nodes = substrate_graph.shortest_path[u][v] + [sub_v]
+                for node in nodes:
+                    substrate_path.append((sub_u, node))
+                    sub_u = node
+                mapping.map_edge(bw_edge.edge, substrate_path)
 
 def NRM_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
     NRM_value_dict_for_virtual_nodes = compute_NRM_value_for_virtual_nodes(virtual_graph)
@@ -48,6 +54,8 @@ def NRM_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
                 )
                 if mapping_occured:
                     break
+            if not is_virtual_node_mapped[int(virtual_node)]:
+                mapping.map_node(virtual_node, "NA")
 
 def RCR_VNE_algorithm(substrate_graph, virtual_graph):
     mapping = Results("RCR_VNE_map", virtual_graph, substrate_graph, True)
@@ -58,8 +66,8 @@ def RCR_VNE_algorithm(substrate_graph, virtual_graph):
 def RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
     NRM_value_dict_for_virtual_nodes = compute_NRM_value_for_virtual_nodes(virtual_graph)
     is_virtual_node_mapped = [False] * len(NRM_value_dict_for_virtual_nodes)
-    RCR_value_dict_for_virtual_nodes = compute_RCR_value_for_substrate_nodes(virtual_graph)
-    RCR_value_dict_for_substrate_nodes = compute_RCR_value_for_virtual_nodes(substrate_graph)
+    RCR_value_dict_for_substrate_nodes = compute_RCR_value_for_substrate_nodes(substrate_graph)
+    RCR_value_dict_for_virtual_nodes = compute_RCR_value_for_virtual_nodes(virtual_graph)
     is_substrate_node_mapped = [False] * len(RCR_value_dict_for_substrate_nodes)
     for virtual_node, _ in NRM_value_dict_for_virtual_nodes.items():
         if is_virtual_node_mapped[int(virtual_node)]:
@@ -80,3 +88,5 @@ def RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
                 )
                 if mapping_occured:
                     break
+            if not is_virtual_node_mapped[int(virtual_node)]:
+                mapping.map_node(virtual_node, "NA")
