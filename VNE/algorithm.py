@@ -5,13 +5,17 @@ from utils import (
     compute_RCR_value_for_substrate_nodes,
     compute_RCR_value_for_virtual_nodes,
     get_edgeBandwidth_list,
-    check_mapping_condition_satisfied)
+    check_mapping_condition_satisfied,
+    Summary)
 
 def NRM_VNE_algorithm(substrate_graph, virtual_graph):
+    nrm_summary = Summary("NRM_VNE_algorithm")
+    nrm_summary.get_bandwidth_data(substrate_graph)
     mapping = Results("NRM_VNE_map", virtual_graph, substrate_graph, True)
-    NRM_VNE_node_mapping(substrate_graph, virtual_graph, mapping)
+    NRM_VNE_node_mapping(substrate_graph, virtual_graph, mapping, nrm_summary)
     edge_mapping(substrate_graph, virtual_graph, mapping)
-    return(mapping)
+    nrm_summary.update_edge_resoruce_util_data(substrate_graph)
+    return(mapping, nrm_summary)
 
 def edge_mapping(substrate_graph, virtual_graph, mapping):
     bw_edge_list = get_edgeBandwidth_list(virtual_graph)
@@ -33,7 +37,7 @@ def edge_mapping(substrate_graph, virtual_graph, mapping):
                     sub_u = node
                 mapping.map_edge(bw_edge.edge, substrate_path)
 
-def NRM_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
+def NRM_VNE_node_mapping(substrate_graph, virtual_graph, mapping, summary):
     NRM_value_dict_for_virtual_nodes = compute_NRM_value_for_virtual_nodes(virtual_graph)
     is_virtual_node_mapped = [False] * len(NRM_value_dict_for_virtual_nodes)
     NRM_value_dict_for_substrate_nodes = compute_NRM_value_for_substrate_nodes(substrate_graph)
@@ -56,14 +60,18 @@ def NRM_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
                     break
             if not is_virtual_node_mapped[int(virtual_node)]:
                 mapping.map_node(virtual_node, "NA")
+    summary.update_node_summary(virtual_graph, substrate_graph, is_substrate_node_mapped, mapping)
 
 def RCR_VNE_algorithm(substrate_graph, virtual_graph):
+    rcr_summary = Summary("RCR_VNE_algorithm")
+    rcr_summary.get_bandwidth_data(substrate_graph)
     mapping = Results("RCR_VNE_map", virtual_graph, substrate_graph, True)
-    RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping)
+    RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping, rcr_summary)
     edge_mapping(substrate_graph, virtual_graph, mapping)
-    return(mapping)
+    rcr_summary.update_edge_resoruce_util_data(substrate_graph)
+    return(mapping, rcr_summary)
 
-def RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
+def RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping, summary):
     NRM_value_dict_for_virtual_nodes = compute_NRM_value_for_virtual_nodes(virtual_graph)
     is_virtual_node_mapped = [False] * len(NRM_value_dict_for_virtual_nodes)
     RCR_value_dict_for_substrate_nodes = compute_RCR_value_for_substrate_nodes(substrate_graph)
@@ -75,7 +83,7 @@ def RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
         else:
             difference_list = RCR_value_dict_for_substrate_nodes.items()
             difference_list = [[abs(val-RCR_value_dict_for_virtual_nodes[virtual_node]), node] for node, val in difference_list]
-            difference_list.sort(reverse=True)
+            difference_list.sort()
             for __, substrate_node in difference_list:
                 mapping_occured = check_mapping_condition_satisfied(
                     substrate_node,
@@ -90,3 +98,4 @@ def RCR_VNE_node_mapping(substrate_graph, virtual_graph, mapping):
                     break
             if not is_virtual_node_mapped[int(virtual_node)]:
                 mapping.map_node(virtual_node, "NA")
+    summary.update_node_summary(virtual_graph, substrate_graph, is_substrate_node_mapped, mapping)

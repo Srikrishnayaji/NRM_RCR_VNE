@@ -1,4 +1,5 @@
 from collections import OrderedDict, namedtuple
+from unicodedata import name
 
 def NRM_value(func):
     def wrapper(graph):
@@ -77,3 +78,53 @@ def check_mapping_condition_satisfied(substrate_node,
             is_virtual_node_mapped[int(virtual_node)] = True
             mapping_occured = True
     return(mapping_occured)
+
+class Summary:
+    def __init__(self, name):
+        self.name = name
+        self.node_utilization = {}
+        self.node_available = {}
+        self.link_utilization = {}
+        self.bandwidth_available = {}
+    
+    def update_node_summary(self, virtual_graph, substrate_graph, is_mapped, mapping):
+        requirements = namedtuple("requirements", ["cpu_request", "memory_request"])
+        for virtual_node, substrate_node in mapping.mapping_nodes.items():
+            if substrate_node == "NA":
+                continue
+            else:
+                self.node_utilization[substrate_node] = virtual_graph.get_node_demand(virtual_node)
+                self.node_available[substrate_node] =  requirements(
+                    substrate_graph.get_node_type_capacity(substrate_node, "t1") - self.node_utilization[substrate_node].cpu_request,
+                    substrate_graph.get_node_type_cost(substrate_node, "t1") - self.node_utilization[substrate_node].memory_request
+                )
+        for node in range(len(is_mapped)):
+            if not is_mapped[node]:
+                self.node_utilization[str(node)] = requirements(0, 0)
+                self.node_available[str(node)] = requirements(
+                    substrate_graph.get_node_type_capacity(str(node), "t1"),
+                    substrate_graph.get_node_type_cost(str(node), "t1")
+                )
+    
+    def get_bandwidth_data(self, substrate_graph):
+        edges = substrate_graph.get_edges()
+        for edge in edges:
+            self.bandwidth_available[edge] = substrate_graph.get_edge_capacity(edge)
+    
+    def update_edge_resoruce_util_data(self, substrate_graph):
+        edges = substrate_graph.get_edges()
+        for edge in edges:
+            self.link_utilization[edge] = self.bandwidth_available[edge] - substrate_graph.get_edge_capacity(edge)
+            self.bandwidth_available[edge] = substrate_graph.get_edge_capacity(edge)
+    
+    def print_summary(self):
+        print("SUMMARY: {}".format(self.name))
+        print("-------------")
+        for node in self.node_utilization.keys():
+            print("SUBSTRATE NODE: {}".format(node))
+            print("CPU Utilized: {} | Memory Utilized: {}".format(self.node_utilization[node].cpu_request, self.node_utilization[node].memory_request))
+            print("CPU Availabe: {} | Memory Available: {}".format(self.node_available[node].cpu_request, self.node_available[node].memory_request))
+        print("----------------------------------------------------------------")
+        for edge in self.bandwidth_available.keys():
+            print("SUBSTRATE Edge: {}".format(edge))
+            print("Bandwidth Availabe: {} | Bandwidth utilized: {}".format(self.bandwidth_available[edge], self.link_utilization[edge]))
