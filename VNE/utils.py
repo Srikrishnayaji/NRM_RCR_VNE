@@ -1,5 +1,5 @@
 from collections import OrderedDict, namedtuple
-from unicodedata import name
+
 
 def NRM_value(func):
     def wrapper(graph):

@@ -56,6 +56,7 @@ class SubstrateWrapper(Substrate):
                 for node in nodes_between:
                     self.edge[(u, node)]['capacity'] -= bandwidth
                     self.edge[(node, u)]['capacity'] -= bandwidth
+                    u = node
                 self.edge[(u, v)]['capacity'] -= bandwidth
                 self.edge[(v, u)]['capacity'] -= bandwidth
             return(True)

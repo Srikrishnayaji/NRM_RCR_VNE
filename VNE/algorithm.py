@@ -31,7 +31,8 @@ def edge_mapping(substrate_graph, virtual_graph, mapping):
                 mapping.map_edge(bw_edge.edge, "NA")
             else:
                 substrate_path = []
-                nodes = substrate_graph.shortest_path[u][v] + [sub_v]
+                nodes = substrate_graph.shortest_path[sub_u][sub_v] + [sub_v]
+                #print("PATH UPDATING: ", nodes)
                 for node in nodes:
                     substrate_path.append((sub_u, node))
                     sub_u = node
