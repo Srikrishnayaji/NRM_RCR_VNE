@@ -17,7 +17,7 @@ if __name__ == "__main__":
     summary.print_summary()
     print("=====================================================================")
     print("Executing RCR algorithm!")
-    mapping, summary = RCR_VNE_algorithm(substrate_graph, virtual_graph)
+    mapping, summary = RCR_VNE_algorithm(substrate_graph_copy, virtual_graph_copy)
     print("MAPPING:")
     print(mapping)
     print("-------------------------------")
