@@ -17,7 +17,7 @@ python2 run.py
 The command line input is to be given. The substrate network parameters are to be given followed by the virtual network data.
 
 ## Modules of interest
-The implementation of the research paper given is present in the VNE folder.
+The implementation of the research paper given, is present in the VNE folder.
 
 ```bash
 VNE/
